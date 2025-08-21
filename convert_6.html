@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>数式計算アプリ</title>
+  <style>
+    .card { display: none; border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    .active { display: block; }
+    .tabs button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+
+  <!-- タブボタン -->
+  <div class="tabs">
+    <button onclick="showFormula('formula1')">売上計算</button>
+    <button onclick="showFormula('formula2')">コスト計算</button>
+    <button onclick="showFormula('settings')">⚙ 設定</button>
+  </div>
+
+  <!-- 式1 -->
+  <div id="formula1" class="card active">
+    <h3>売上計算</h3>
+    <label>数量：</label><input type="number" id="f1_input1"><br>
+    <label>単価：</label><input type="number" id="f1_input2"><br>
+    <label>割引率：</label><input type="number" id="f1_input3"><br>
+    <button onclick="calculate1()">計算する</button>
+    <h3>結果：<span id="f1_result">---</span></h3>
+  </div>
+
+  <!-- 式2 -->
+  <div id="formula2" class="card">
+    <h3>コスト計算</h3>
+    <label>固定費：</label><input type="number" id="f2_input1"><br>
+    <label>変動費：</label><input type="number" id="f2_input2"><br>
+    <label>数量：</label><input type="number" id="f2_input3"><br>
+    <button onclick="calculate2()">計算する</button>
+    <h3>結果：<span id="f2_result">---</span></h3>
+  </div>
+
+  <!-- 設定画面 -->
+  <div id="settings" class="card">
+    <h3>定数設定</h3>
+    <h4>売上計算用</h4>
+    a: <input type="number" id="const_f1_a"><br>
+    b: <input type="number" id="const_f1_b"><br>
+
+    <h4>コスト計算用</h4>
+    c: <input type="number" id="const_f2_c"><br>
+    d: <input type="number" id="const_f2_d"><br>
+
+    <button onclick="saveConstants()">保存</button>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 定数オブジェクト
+    let constants = {
+      formula1: { a: 1.2, b: 0.5 },
+      formula2: { c: 100, d: 20 }
+    };
+
+    // タブ切り替え
+    function showFormula(id) {
+      document.querySelectorAll('.card').forEach(div => div.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // 保存処理
+    function saveConstants() {
+      constants.formula1.a = parseFloat(document.getElementById("const_f1_a").value) || constants.formula1.a;
+      constants.formula1.b = parseFloat(document.getElementById("const_f1_b").value) || constants.formula1.b;
+      constants.formula2.c = parseFloat(document.getElementById("const_f2_c").value) || constants.formula2.c;
+      constants.formula2.d = parseFloat(document.getElementById("const_f2_d").value) || constants.formula2.d;
+
+      localStorage.setItem("constants", JSON.stringify(constants));
+      alert("定数を保存しました！");
+    }
+
+    // 初期化
+    window.onload = () => {
+      const saved = localStorage.getItem("constants");
+      if (saved) constants = JSON.parse(saved);
+
+      document.getElementById("const_f1_a").value = constants.formula1.a;
+      document.getElementById("const_f1_b").value = constants.formula1.b;
+      document.getElementById("const_f2_c").value = constants.formula2.c;
+      document.getElementById("const_f2_d").value = constants.formula2.d;
+    };
+
+    // 計算関数
+    function calculate1() {
+      const x1 = parseFloat(document.getElementById("f1_input1").value) || 0;
+      const x2 = parseFloat(document.getElementById("f1_input2").value) || 0;
+      const x3 = parseFloat(document.getElementById("f1_input3").value) || 0;
+
+      const result = (x1 * constants.formula1.a + x2 * constants.formula1.b) - x3;
+      document.getElementById("f1_result").textContent = result;
+    }
+
+    function calculate2() {
+      const y1 = parseFloat(document.getElementById("f2_input1").value) || 0;
+      const y2 = parseFloat(document.getElementById("f2_input2").value) || 0;
+      const y3 = parseFloat(document.getElementById("f2_input3").value) || 0;
+
+      const result = constants.formula2.c + (y2 * y3) - y1 * constants.formula2.d;
+      document.getElementById("f2_result").textContent = result;
+    }
+  </script>
+
+</body>
+</html>
